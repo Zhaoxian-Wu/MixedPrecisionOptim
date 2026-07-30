@@ -321,7 +321,7 @@ class AnalogMpOptimizerMixin(AnalogOptimizerMixin):
                 analog_ctx = param
                 
                 # Call `update` in the tile.
-                if not analog_ctx.has_gradient():
+                if not analog_ctx.has_gradient() and analog_ctx.grad is None:
                     raise ValueError("No gradient found in AnalogContext. backward() might not have been called.")
 
                 x_input, d_input = self.get_processed_x_d_input(analog_ctx)
@@ -330,8 +330,15 @@ class AnalogMpOptimizerMixin(AnalogOptimizerMixin):
                 # TODO: use param as transfer buffer
                 
                 if param.size() != grad.size():
+                    # for the latest aihwkit, it param has already been initialized
+                    assert not hasattr(param, "enable_buffer")
+                    # AnalogContext.data starts as a scalar (aihwkit context.py:
+                    # ones(())). The digital transfer buffer is lazily initialized
+                    # to the gradient/weight shape on the first step. This replaces
+                    # a temporary debug `raise` and substitutes for
+                    # AnalogContext.enable_buffer(), which the current aihwkit build
+                    # does not provide (see __init__ warning).
                     param.data = torch.zeros_like(grad)
-                    raise ValueError(f"testing: gradient shape {grad.shape} does not match param shape {param.size()}. The param data has been resized to match the gradient shape. Please check the configuration of the analog tile and the training code.")
                 param.grad = grad
     
     @no_grad()

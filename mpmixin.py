@@ -185,7 +185,13 @@ class AnalogMpOptimizerMixin(AnalogOptimizerMixin):
                 if hasattr(param, "enable_buffer"):
                     param.enable_buffer()
                 else:
-                    mes = "AnalogContext does not have `enable_buffer` method."
+                    mes = "AnalogContext does not have `enable_buffer` method. Update AIHWkit for better optimization."
+                    warnings.warn(mes, UserWarning)
+                    
+                if hasattr(param, "set_digital_grad_accumulation"):
+                    param.set_digital_grad_accumulation()
+                else:
+                    mes = "AnalogContext does not have `set_digital_grad_accumulation` method. Update AIHWkit for better optimization."
                     warnings.warn(mes, UserWarning)
 
     def zero_grad(self, *args: Any, **kwargs: Any):
@@ -319,8 +325,16 @@ class AnalogMpOptimizerMixin(AnalogOptimizerMixin):
                     continue
 
                 analog_ctx = param
-                
-                # Call `update` in the tile.
+
+                if getattr(analog_ctx, "digital_grad_accumulation", False):
+                    if param.grad is None:
+                        raise ValueError(
+                            "No digital gradient found in AnalogContext. "
+                            "backward() might not have been called."
+                        )
+                    continue
+
+                # Legacy path: build the gradient from retained x and d traces.
                 if not analog_ctx.has_gradient():
                     raise ValueError("No gradient found in AnalogContext. backward() might not have been called.")
 
@@ -331,7 +345,6 @@ class AnalogMpOptimizerMixin(AnalogOptimizerMixin):
                 
                 if param.size() != grad.size():
                     param.data = torch.zeros_like(grad)
-                    raise ValueError(f"testing: gradient shape {grad.shape} does not match param shape {param.size()}. The param data has been resized to match the gradient shape. Please check the configuration of the analog tile and the training code.")
                 param.grad = grad
     
     @no_grad()

@@ -1,20 +1,10 @@
-"""Mixed-precision optimizers for analog training."""
+"""Mixed-precision optimizers used by A01-train-analog.py."""
 
-from .AdamW import AGMpAdamW, AGMpDRUAdamW, AGMpMwAdamW, MpAdamW
-from .Muon import AGMpMuon, AGMpMwMuon, MpMuon, MuonWithAuxAdam
-from .SGD import MpSGD
-from .SignSGD import AGMpSignSGD, MpSignSGD
+from .AdamW import MpAdamW
+from .Muon import MpMuon, MuonWithAuxAdam
 
 __all__ = [
-    "AGMpAdamW",
-    "AGMpDRUAdamW",
-    "AGMpMwAdamW",
-    "AGMpMuon",
-    "AGMpMwMuon",
-    "AGMpSignSGD",
     "MpAdamW",
     "MpMuon",
-    "MpSGD",
-    "MpSignSGD",
     "MuonWithAuxAdam",
 ]

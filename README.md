@@ -12,22 +12,18 @@ practice, these optimizers can be constructed and used like regular PyTorch
 optimizers, while adding analog-aware mixed-precision update behavior for
 AIHWKIT-based models.
 
-Currently the following optimizers are tracked:
+Currently the following mixed-precision optimizers are tracked for `A01-train-analog.py`:
 
 - `MpAdamW`
-- `MpSGD`
-- `MpSignSGD`
 - `MpMuon`
 
 ## Example Usage
 
 
 ```python
-import inspect
 import torch
 
 from aihwkit.nn.conversion import convert_to_analog
-from aihwkit.optim.context import AnalogContext
 from aihwkit.simulator.configs import SingleRPUConfig
 from aihwkit.simulator.configs.devices import SoftBoundsReferenceDevice
 
@@ -69,22 +65,16 @@ lr = 1e-3
 beta1 = 0.9
 beta2 = 0.999
 
-params = model.named_parameters()
-optimizer = MpAdamW(optim_groups, lr=lr, betas=(beta1, beta2), **extra_args)
+params = model.parameters()
+optimizer = MpAdamW(params, lr=lr, betas=(beta1, beta2))
 
 # required by aihwkit
 if hasattr(optimizer, "regroup_param_groups"):
     optimizer.regroup_param_groups(model)
 ```
-To swap optimizers, replace the constructor:
+To use Muon on the analog mixed-precision path, replace the constructor:
 
 ```python
-from MixedPrecisionOptim.SGD import MpSGD
-optimizer = MpSGD(params, lr=lr)
-
-from MixedPrecisionOptim.SignSGD import MpSignSGD
-optimizer = MpSignSGD(params, lr=lr)
-
 from MixedPrecisionOptim.Muon import MpMuon
 optimizer = MpMuon(params)
 ```

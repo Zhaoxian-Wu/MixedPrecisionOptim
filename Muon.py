@@ -2,8 +2,7 @@ import torch
 import torch.distributed as dist
 
 
-from MixedPrecisionOptim.mpmixin import AnalogGradMpOptimizerMixin, AnalogMpOptimizerMixin
-from MixedPrecisionOptim.mpmixin import AnalogGradMpMwOptimizerMixin
+from MixedPrecisionOptim.mpmixin import AnalogMpOptimizerMixin
 
 def zeropower_via_newtonschulz5(G, steps: int):
     """
@@ -302,29 +301,6 @@ class SingleDeviceMuonWithAuxAdam(torch.optim.Optimizer):
 
 class MpMuon(AnalogMpOptimizerMixin, MuonWithAuxAdam):
     """Mixin for analog optimizers.
-
-    This class contains the methods needed for enabling analog in an existing
-    ``Optimizer``. It is designed to be used as a mixin in conjunction with an
-    ``AnalogOptimizer`` or torch ``Optimizer``.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.torch_step = MuonWithAuxAdam.step
-
-class AGMpMuon(AnalogGradMpOptimizerMixin, MuonWithAuxAdam):
-    """Mixin for analog optimizers.
-
-    This class contains the methods needed for enabling analog in an existing
-    ``Optimizer``. It is designed to be used as a mixin in conjunction with an
-    ``AnalogOptimizer`` or torch ``Optimizer``.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.torch_step = MuonWithAuxAdam.step
-
-
-class AGMpMwMuon(AnalogGradMpMwOptimizerMixin, MuonWithAuxAdam):
-    """Mixin for analog optimizers with half-order update.
 
     This class contains the methods needed for enabling analog in an existing
     ``Optimizer``. It is designed to be used as a mixin in conjunction with an

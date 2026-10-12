@@ -1,11 +1,11 @@
+"""PyTorch AdamW with MP storage and analog programming."""
+
 from torch.optim import AdamW
+from MixedPrecisionOptim.MpOptimizerMixin import MpOptimizerMixin
 
-from MixedPrecisionOptim.mpmixin import AnalogMpOptimizerMixin
+
+class MpAdamW(MpOptimizerMixin, AdamW):
+    digital_optimizer_cls = AdamW
 
 
-class MpAdamW(AnalogMpOptimizerMixin, AdamW):
-    """Mixed-precision AdamW for analog optimizers."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.torch_step = AdamW.step
+__all__ = ["MpAdamW"]

@@ -14,7 +14,7 @@ from aihwkit.simulator.configs.configs import SingleRPUConfig
 from aihwkit.simulator.configs.devices import FloatingPointDevice
 from aihwkit.simulator.parameters.enums import PulseType
 
-from .mpmixin import AnalogMpOptimizerMixin
+from .MpOptimizerMixin import MpOptimizerMixin
 
 
 SPLIT_HADAMARD_NONE = "none"
@@ -62,7 +62,7 @@ def _fwht(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
     return y.movedim(-1, dim)
 
 
-class AnalogGradMpOptimizerMixin(AnalogMpOptimizerMixin):
+class AnalogGradMpOptimizerMixin(MpOptimizerMixin):
     def __init__(self, params, 
                  grad_rpu_config=None, scaling_grad=True, 
                  reset_grad=True, 
@@ -80,7 +80,6 @@ class AnalogGradMpOptimizerMixin(AnalogMpOptimizerMixin):
                  split_signal_reverse_groups=False,
                  *args: Any, **kwargs: Any) -> None:
         super().__init__(params, *args, **kwargs)
-        self.torch_step = None
         self.grad_rpu_config = grad_rpu_config
         self.scaling_grad = scaling_grad
         self.reset_grad = reset_grad
@@ -1419,7 +1418,7 @@ class AnalogGradMpMwOptimizerMixin(AnalogGradMpOptimizerMixin):
                     analog_tile.set_hidden_parameters(hidden_params)
 
 
-class RandomDirectionMpOptimizerMixin(AnalogMpOptimizerMixin):
+class RandomDirectionMpOptimizerMixin(MpOptimizerMixin):
     @no_grad()
     def prepare_grad(self) -> None:
         for group in self.param_groups:
@@ -1510,7 +1509,7 @@ class ZerothOrderOptimizerMixin(AnalogGradMpMwOptimizerMixin):
     
     @no_grad()
     def prepare_perturbation(self) -> None:
-        # AnalogMpOptimizerMixin.prepare_grad(self)
+        # MpOptimizerMixin.prepare_grad(self)
         # return
         for group in self.param_groups:
             # Use analog_tile object.
